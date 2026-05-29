@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BI Executivo - Efeito Revista</title>
+    <style>
+        :raiz {
+            --azul-escuro: #0d47a1;
+            --verde-positivo: #2e7d32;
+            --vermelho-negativo: #c62828;
+            --laranja-alerta: #ef6c00;
+            --amarelo-destaque: #fbc02d;
+            --cinza-fundo: #f5f5f5;
+            --branco: #ffffff;
+            --texto-cor: #333333;
+        }
+
+        corpo {
+            família de fontes: 'Segoe UI', Tahoma, Genebra, Verdana, sans-serif;
+            cor de fundo: var(--cinza-fundo);
+            cor: var(--texto-cor);
+            margem: 0;
+            preenchimento: 20px;
+        }
+
+        cabeçalho {
+            cor de fundo: var(--azul-escuro);
+            cor: branca;
+            preenchimento: 20px;
+            raio da borda: 8px;
+            margem-inferior: 20px;
+            Exibir: flexível;
+            justify-content: espaço-entre;
+            alinhamento-itens: centro;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .container-grid {
+            Exibir: grade;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            espaço: 20px;
+            margem-inferior: 20px;
+        }
+
+        .card {
+            fundo: var(--branco);
+            preenchimento: 20px;
+            raio da borda: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            borda esquerda: 5px var sólido (--azul-escuro);
+        }
+
+        .card.alerta { cor da borda esquerda: var(--laranja-alerta); }
+        .card.positivo { borda-esquerda-cor: var(--verde-positivo); }
+        .card.recomendacao { borda-esquerda-cor: var(--amarelo-destaque); }
+
+        h2 {margem superior: 0; tamanho da fonte: 1,2rem; cor: var(--azul-escuro); transformação de texto: maiúscula; }
+
+        .kpi-valor {
+            tamanho da fonte: 2rem;
+            peso da fonte: negrito;
+            exibir: bloco;
+            margem: 10px 0;
+        }
+
+        .kpi-sub { tamanho da fonte: 0,9rem; cor: #666; }
+
+        .dashboard-section {
+            fundo: var(--branco);
+            preenchimento: 25px;
+            raio da borda: 8px;
+            margem-inferior: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        mesa {
+            largura: 100%;
+            colapso de fronteira: colapso;
+            margem superior: 15px;
+            tamanho da fonte: 0,9rem;
+        }
+
+        th {
+            cor de fundo: #f8f9fa;
+            cor: var(--azul-escuro);
+            alinhamento de texto: esquerda;
+            preenchimento: 12px;
+            borda inferior: 2px sólida #dee2e6;
+            posição: pegajosa;
+            topo: 0;
+        }
+
+        td {
+            preenchimento: 10px;
+            borda inferior: 1px sólida #eee;
+        }
+
+        tr:hover { background-color: #f1f1f1; }
+
+        .caixa-de-pesquisa {
+            largura: 100%;
+            preenchimento: 10px;
+            margem-inferior: 10px;
+            borda: 1px sólida #ddd;
+            raio da borda: 4px;
+            box-sized: caixa com borda;
+        }
+
+        .bar-container {
+            largura: 100%;
+            cor de fundo: #eee;
+            raio da borda: 10px;
+            altura: 20px;
+            margem: 5px 0;
+        }
+
+        .bar-fill {
+            altura: 100%;
+            raio da borda: 10px;
+            cor de fundo: var(--verde-positivo);
+        }
+
+        .impacto-badge {
+            preenchimento: 4px 8px;
+            raio da borda: 4px;
+            peso da fonte: negrito;
+            cor: branca;
+        }
+
+        .bg-positivo { cor de fundo: var(--verde-positivo); }
+        .bg-negativo { cor de fundo: var(--vermelho-negativo); }
+
+        .tabela-de-rolagem {
+            altura máxima: 500px;
+            overflow-y: automático;
+            borda: 1px sólida #eee;
+        }
+
+        .grid-2 {
+            Exibir: grade;
+            grid-template-columns: 1fr 1fr;
+            espaço: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .grid-2 { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div>
+            <h1 style="margin:0">BI Efeito Revista - Inteligência Comercial</h1>
+            <p style="margin:5px 0 0 0">Visão Consultiva de Faturamento e Performance</p>
+        </div>
+        <div id="data-atualização"></div>
+    </header>
+
+    <div class="container-grid">
+        <div class="card">
+            <h2>Conclusão Executiva</h2>
+            <div id="executivo-texto">Carregando análise...</div>
+        </div>
+        <div class="card recomendação">
+            <h2>Recomendações Estratégicas</h2>
+            <ul id="recomendacoes-lista" style="padding-left: 20px; margin: 0;"></ul>
+        </div>
+        <div class="card alerta">
+            <h2>Alertas e Auditório</h2>
+            <div id="alertas-container"></div>
+        </div>
+    </div>
+
+    <div class="container-grid">
+        <div class="card positivo">
+            <h2>Faturamento Geral (Livraria)</h2>
+            <span class="kpi-valor" id="kpi-fat-geral">R$ 0,00</span>
+            <span class="kpi-sub" id="crescimento-geral">0% vs período anterior</span>
+        </div>
+        <div class="card">
+            <h2>Faturamento Produtos Revista</h2>
+            <span class="kpi-valor" id="kpi-fat-revista" style="color: var(--azul-escuro);">R$ 0,00</span>
+            <span class="kpi-sub" id="participacao-revista">0% do total da livraria</span>
+        </div>
+        <div class="card">
+            <h2>Ticketcross</h2>
+            <span class="kpi-valor" id="kpi-ticket">R$ 0,00</span>
+            <span class="kpi-sub">Mídia de transação</span>
+        </div>
+        <div class="card">
+            <h2>Impacto Antes x Durante</h2>
+            <div id="impacto-comparativo" style="margin-top:10px"></div>
+        </div>
+    </div>
+
+    <div class="grid-2">
+        <div class="dashboard-section">
+            <h2>Ranking de Lojas (Desempenho Total)</h2>
+            <input type="text" class="search-box" placeholder="Buscar loja..." onkeyup="filterTable('table-lojas', this.value)">
+            <div class="scrolling-table">
+                <table id="table-lojas">
+                    <thead>
+                        <tr>
+                            <th>Loja</th>
+                            <th>Faturamento Livraria</th>
+                            <th>Atingimento Meta</th>
+                        </tr>
+                    </thead>
+                    <tbody id="body-lojas"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="dashboard-section">
+            <h2>Ranking de Editoras (Completo)</h2>
+            <input type="text" class="search-box" placeholder="Buscar editora..." onkeyup="filterTable('table-editoras', this.value)">
+            <div class="scrolling-table">
+                <table id="table-editoras">
+                    <thead>
+                        <tr>
+                            <th>Editora</th>
+                            <th>Total Fataturado</th>
+                            <th>Unidades</th>
+                            <th>Participação de mercado</th>
+                        </tr>
+                    </thead>
+                    <tbody id="body-editoras"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="dashboard-section">
+        <h2>Ranking de Gêneros / Categorias</h2>
+        <div id="categorias-grafico" style="display: flex; flex-direction: column; gap: 10px;"></div>
+    </div>
+
+    <div class="dashboard-section">
+        <h2>Panorama Completo de Produtos (Top 100 e Geral)</h2>
+        <input type="text" class="search-box" placeholder="Filtrar por nome, editora ou categoria..." onkeyup="filterTable('table-produtos', this.value)">
+        <div class="scrolling-table">
+            <table id="table-produtos">
+                <thead>
+                    <tr>
+                        <th>Classificação</th>
+                        <th>Produto</th>
+                        <th>Editora</th>
+                        <th>Categoria</th>
+                        <th>Unid.</th>
+                        <th>Faturamento</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="body-produtos"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // Objeto de dados (será preenchido via n8n)
+        const data = {
+            faturamento_livraria: 0,
+            faturamento_revista_total: 0,
+            ticket_medio: 0,
+            crescimento_pct: 0,
+            antes_faturamento: 0,
+            durante_faturamento: 0,
+            conclusão: "Dados não disponíveis para análise.",
+            recomendações: [],
+            alertas: [],
+            s: [],
+            editoras: [],
+            categorias: [],
+            produtos: []
+        };
+
+        função formatCurrency(valor) {
+            return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
+        }
+
+        função formatPercent(valor) {
+            return new Intl.NumberFormat('pt-BR', { style: 'percent', minimumFractionDigits: 1 }).format(value / 100);
+        }
+
+        função filterTable(tableId, query) {
+            tabela const = document.getElementById(tableId);
+            const rows = table.getElementsByTagName('tr');
+            const term = query.toLowerCase();
+
+            para (let i = 1; i < rows.length; i++) {
+                const text = rows[i].textContent.toLowerCase();
+                rows[i].style.display = text.includes(term) ? '' : 'nenhum';
+            }
+        }
+
+        função initDashboard() {
+            if (!data.faturamento_livraria && (!data.lojas || data.lojas.length === 0)) {
+                console.warn("Aguardando dados...");
+                retornar;
+            }
+
+            // Atualizar dados
+            document.getElementById('data-atualizacao').innerText = `Atualizado em: ${new Date().toLocaleString('pt-BR')}`;
+
+            // KPIs
+            document.getElementById('kpi-fat-geral').innerText = formatCurrency(data.faturamento_livraria);
+            document.getElementById('kpi-fat-revista').innerText = formatCurrency(data.faturamento_revista_total);
+            document.getElementById('kpi-ticket').innerText = formatCurrency(data.ticket_medio);
+            
+            const crescElem = document.getElementById('crescimento-geral');
+            crescElem.innerText = `${data.crescimento_pct}% vs período anterior`;
+            crescElem.style.color = data.crescimento_pct >= 0 ? 'var(--verde-positivo)' : 'var(--vermelho-negativo)';
+
+            const parteRevista = (data.faturamento_revista_total / data.faturamento_livraria) * 100 || 0;
+            document.getElementById('participação-revista').innerText = `${partRevista.toFixed(1)}% do faturamento da livraria`;
+
+            // Conclusão e Recomendações
+            document.getElementById('executivo-texto').innerText = data.conclusao;
+            const recLista = document.getElementById('recomendações-lista');
+            recLista.innerHTML = data.recomendacoes.map(r => `<li>${r}</li>`).join('');
+
+            // Alertas
+            const alertaCont = document.getElementById('alertas-container');
+            alertaCont.innerHTML = data.alertas.map(a => `
+                <div style="margin-bottom:8px; border-bottom: 1px solid #eee; padding-bottom:4px">
+                    <strong>⚠️ ${a.tipo}:</strong> ${a.mensagem}
+                </div>
+            `).join('');
+
+            // Impacto Antes x Durante
+            const impactoCont = document.getElementById('impacto-comparativo');
+            const variacao = ((data.durante_faturamento / data.antes_faturamento - 1) * 100) || 0;
+            impactoCont.innerHTML = `
+                <div style="display:flex; justify-content:space-between; margin-bottom:5px">
+                    <span>Durante: ${formatCurrency(data.durante_faturamento)}</span>
+                    <span class="impacto-badge ${variacao >= 0 ? 'bg-positivo' : 'bg-negativo'}">${variacao.toFixed(1)}%</span>
+                </div>
+                <div class="bar-container"><div class="bar-fill" style="width: ${Math.min(Math.max(variacao + 50, 10), 100)}%"></div></div>
+                <small>Referência Antes: ${formatCurrency(data.antes_faturamento)}</small>
+            `;
+
+            // Tabela Lojas
+            const bodyLojas = document.getElementById('body-lojas');
+            bodyLojas.innerHTML = data.lojas.sort((a,b) => b.faturamento - a.faturamento).map(l => `
+                <tr>
+                    <td>${l.nome}</td>
+                    <td>${formatCurrency(l.faturamento)}</td>
+                    <td>
+                        <div style="display:flex; align-items:center; gap:10px">
+                            <div class="bar-container" style="flex-grow:1; margin:0; height:10px">
+                                <div class="bar-fill" style="width:${Math.min(l.meta_atingida, 100)}%; background-color:${l.meta_atingida >= 100 ? 'var(--verde-positivo)' : 'var(--laranja-alerta)'}"></div>
+                            </div>
+                            <span>${l.meta_atingida}%</span>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+
+            // Tabela Editoras
+            const bodyEditoras = document.getElementById('body-editoras');
+            bodyEditoras.innerHTML = data.editoras.sort((a,b) => b.total_faturamento - a.total_faturamento).map(e => `
+                <tr>
+                    <td><strong>${e.nome}</strong></td>
+                    <td>${formatCurrency(e.total_faturamento)}</td>
+                    <td>${e.total_vendas}</td>
+                    <td>${e.share}%</td>
+                </tr>
+            `).join('');
+
+            // Categorias (Gráfico de barras horizontal)
+            const catGrafico = document.getElementById('categorias-gráfico');
+            const maxCat = Math.max(...data.categorias.map(c => c.faturamento), 1);
+            catGrafico.innerHTML = data.categorias.sort((a,b) => b.faturamento - a.faturamento).map(c => `
+                <div style="display:grid; grid-template-columns: 150px 1fr 100px; align-items:center; gap:10px">
+                    <span style="font-size:0.85rem">${c.nome}</span>
+                    <div class="bar-container" style="height:15px; margin:0">
+                        <div class="bar-fill" style="width:${(c.faturamento/maxCat)*100}%; background-color: var(--azul-escuro)"></div>
+                    </div>
+                    <span style="font-weight:bold; font-size:0.85rem">${formatCurrency(c.faturamento)}</span>
+                </div>
+            `).join('');
+
+            // Tabela Produtos
+            const bodyProdutos = document.getElementById('body-produtos');
+            bodyProdutos.innerHTML = data.produtos.sort((a,b) => b.faturamento - a.faturamento).map((p, idx) => `
+                <tr>
+                    <td>${idx + 1}º</td>
+                    <td>${p.nome}</td>
+                    <td>${p.editora}</td>
+                    <td>${p.categoria}</td>
+                    <td>${p.vendas}</td>
+                    <td><strong>${formatCurrency(p.faturamento)}</strong></td>
+                    <td><span style="color: ${p.vendas > 0 ? 'var(--verde-positivo)' : 'var(--vermelho-negativo)'}">${p.vendas > 0 ? 'Ativo' : 'Sem Giro'}</span></td>
+                </tr>
+            `).join('');
+        }
+
+        // Simulação de carregamento (O n8n injetará os dados reais e chamará init)
+        janela.onload = initDashboard;
+    </script>
+</body>
+</html>
